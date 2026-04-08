@@ -1,0 +1,6 @@
+# Compiled output
+backup
+*.o
+
+# Benchmark temp files
+/tmp/sc_bench_*.bin

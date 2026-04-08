@@ -7,7 +7,7 @@
  * de kernel.  En Linux real esto viviría en include/linux/syscalls.h y sería
  * invocada mediante un número de syscall registrado en la tabla del kernel.
  *
- * Autores : [Tu nombre]
+ * Autores : Juan José Barón · Estefanía Ramírez · Juan Camilo Gómez Jiménez
  * Materia  : Sistemas Operativos  –  Universidad EAFIT
  * ---------------------------------------------------------------------------
  */

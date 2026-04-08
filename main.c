@@ -34,16 +34,15 @@
 
 /** Tamaños de archivo a probar (en bytes). */
 static const long long BENCH_SIZES[] = {
-    1LL * 1024,              /*    1 KB  */
-    1LL * 1024 * 1024,       /*    1 MB  */
-    /* Descomentar solo si hay tiempo/disco disponible: */
-    /* 1LL * 1024 * 1024 * 1024, */  /* 1 GB */
+    1LL * 1024,                    /*    1 KB  */
+    1LL * 1024 * 1024,             /*    1 MB  */
+    1LL * 1024 * 1024 * 1024,      /*    1 GB  */
 };
 
 static const char *BENCH_LABELS[] = {
     "1 KB",
     "1 MB",
-    /* "1 GB", */
+    "1 GB",
 };
 
 #define N_SIZES  ((int)(sizeof(BENCH_SIZES) / sizeof(BENCH_SIZES[0])))
@@ -161,7 +160,7 @@ static void run_benchmark(void)
         const char *label = BENCH_LABELS[s];
 
         /* --- Generar archivo fuente --- */
-        printf("| Generando %-4s...                                                        |\n", label);
+        printf("  Generando archivo de prueba (%s)...\n", label);
         fflush(stdout);
 
         if (generate_file(src, sz) != 0) {
@@ -294,7 +293,12 @@ int main(int argc, char *argv[])
     uint32_t    flags = SC_FLAG_NONE;
 
     if (argc >= 4) {
-        flags = (uint32_t)atoi(argv[3]);
+        char *endptr;
+        flags = (uint32_t)strtoul(argv[3], &endptr, 10);
+        if (*endptr != '\0') {
+            fprintf(stderr, "[backup] Flag inválido: '%s'\n", argv[3]);
+            return EXIT_FAILURE;
+        }
     }
 
     printf("[backup] Copiando '%s' → '%s'  (flags=0x%02X)\n", src, dst, flags);

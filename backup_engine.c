@@ -81,8 +81,8 @@ void sc_perror(const char *context)
  *   1. Validar punteros de entrada (no NULL).
  *   2. Verificar permisos con access(2) si SC_FLAG_CHECK_PERMS está activo.
  *   3. Abrir src con open(O_RDONLY)  → fd_src.
- *   4. Obtener tamaño del archivo con fstat(2).
- *   5. Abrir/crear dst con open(O_WRONLY|O_CREAT|O_TRUNC) → fd_dst.
+ *   4. Abrir/crear dst con open(O_WRONLY|O_CREAT|O_TRUNC) → fd_dst.
+ *   5. (fstat no se usa; el tamaño se descubre implícitamente via EOF en read).
  *   6. Asignar buffer de PAGE_SIZE (o PAGE_SIZE*256 con SC_FLAG_LARGE_BUF).
  *   7. Bucle read→write hasta EOF.  Detectar ENOSPC en cada write(2).
  *   8. fsync(fd_dst) si SC_FLAG_SYNC está activo.
@@ -217,7 +217,7 @@ int sys_smart_copy(const char *src_path,
                     sc_perror("write() destino: disco lleno");
                 } else {
                     sc_perror("write() destino: error de I/O");
-                    errno = EIO;
+                    /* Preservar errno original; no sobreescribir con EIO */
                 }
                 ret = SC_ERROR;
                 goto cleanup;
@@ -278,6 +278,11 @@ cleanup:
     }
     if (fd_dst >= 0) {
         close(fd_dst);
+        /* Si hubo error y el destino fue creado, eliminarlo para no dejar
+         * archivos parcialmente escritos (comportamiento equivalente a cp). */
+        if (ret == SC_ERROR) {
+            unlink(dst_path);
+        }
     }
     if (flags & SC_FLAG_LOG) {
         closelog();
